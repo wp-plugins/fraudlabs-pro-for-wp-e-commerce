@@ -3,7 +3,7 @@
  * Plugin Name: FraudLabs Pro for WP e-Commerce
  * Plugin URI: http://www.fraudlabspro.com
  * Description: This plugin is an add-on for WP e-Commerce plugin that help you to screen your order transaction, such as credit card transaction, for online fraud.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: FraudLabs Pro
  * Author URI: http://www.fraudlabspro.com
  */
@@ -91,10 +91,21 @@ class FraudLabsPro_WP_ECommerce {
 		foreach ($merchant_instance->cart_items as $key => $value) {
 			$qty+= $value['quantity'];
 		}
+
+		$ip = $_SERVER['REMOTE_ADDR'];
+
+		if(isset($_SERVER['HTTP_CF_CONNECTING_IP']) && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP)){
+			$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+		}
+
+		if(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP)){
+			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		}
+
 		$request = array(
 			'key' => get_option('fraudlabspro_api_key') ,
 			'format' => 'json',
-			'ip' => (get_option('fraudlabspro_test_ip')) ? get_option('fraudlabspro_test_ip') : $_SERVER['REMOTE_ADDR'],
+			'ip' => (get_option('fraudlabspro_test_ip')) ? get_option('fraudlabspro_test_ip') : $ip,
 			'bill_city' => $merchant_instance->cart_data['billing_address']['city'],
 			'bill_state' => $merchant_instance->cart_data['billing_address']['state'],
 			'bill_zip_code' => $merchant_instance->cart_data['billing_address']['post_code'],
